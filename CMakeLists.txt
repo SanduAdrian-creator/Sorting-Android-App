@@ -8,7 +8,9 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Quick QuickControls2)
 qt_standard_project_setup(REQUIRES 6.5)
 
 # Executabilul ajunge în bin/
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+if(NOT ANDROID)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+endif()
 
 qt_add_executable(CuvinteApp
     src/main.cpp
