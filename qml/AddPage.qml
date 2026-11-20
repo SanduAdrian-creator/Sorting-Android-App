@@ -32,6 +32,6 @@ Page {
             onClicked: addCurrentText()
         }
 
-        Item { Layout.fillHeight: true } // împinge conținutul în sus
+        Item { Layout.fillHeight: true }
     }
 }
