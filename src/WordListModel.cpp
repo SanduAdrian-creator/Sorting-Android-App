@@ -10,7 +10,6 @@ WordListModel::WordListModel(QObject *parent)
 {
     m_collator.setCaseSensitivity(Qt::CaseInsensitive);
 
-    // Sortăm ce am încărcat din fișier, ca să fie sigur în ordine.
     std::sort(m_words.begin(), m_words.end(),
               [this](const QString &a, const QString &b) { return lessThan(a, b); });
 }
@@ -54,13 +53,9 @@ QHash<int, QByteArray> WordListModel::roleNames() const
     };
 }
 
-bool WordListModel::add(const QString &text)
+// Inserează cuvântul la locul corect în lista sortată (fără salvare).
+void WordListModel::insertSorted(const QString &clean)
 {
-    const QString clean = text.simplified(); // taie spațiile de la capete și dublurile
-    if (clean.isEmpty())
-        return false;
-
-    // Găsim locul corect în lista sortată și inserăm acolo.
     const auto pos = std::upper_bound(
         m_words.begin(), m_words.end(), clean,
         [this](const QString &a, const QString &b) { return lessThan(a, b); });
@@ -69,7 +64,37 @@ bool WordListModel::add(const QString &text)
     beginInsertRows(QModelIndex(), row, row);
     m_words.insert(row, clean);
     endInsertRows();
+}
 
+bool WordListModel::add(const QString &text)
+{
+    const QString clean = text.simplified();
+    if (clean.isEmpty())
+        return false;
+
+    insertSorted(clean);
+    m_storage.save(m_words);
+    return true;
+}
+
+bool WordListModel::edit(int row, const QString &text)
+{
+    if (row < 0 || row >= m_words.size())
+        return false;
+
+    const QString clean = text.simplified();
+    if (clean.isEmpty())
+        return false;
+    if (clean == m_words.at(row))
+        return true; // nimic de schimbat
+
+    // Scoatem vechiul cuvânt și îl punem pe cel nou la locul lui sortat,
+    // ca să ajungă în secțiunea corectă dacă i s-a schimbat litera.
+    beginRemoveRows(QModelIndex(), row, row);
+    m_words.removeAt(row);
+    endRemoveRows();
+
+    insertSorted(clean);
     m_storage.save(m_words);
     return true;
 }

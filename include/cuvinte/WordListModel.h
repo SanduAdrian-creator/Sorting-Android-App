@@ -27,11 +27,13 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE bool add(const QString &text);
+    Q_INVOKABLE bool edit(int row, const QString &text);
     Q_INVOKABLE void remove(int row);
 
 private:
     static QString firstLetter(const QString &word);
     bool lessThan(const QString &a, const QString &b) const;
+    void insertSorted(const QString &clean);
 
     WordStorage m_storage;
     QCollator m_collator;
